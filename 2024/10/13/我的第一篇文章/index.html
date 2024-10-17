@@ -42,11 +42,11 @@
 <meta property="og:title" content="我的第一篇文章">
 <meta property="og:url" content="http://example.com/2024/10/13/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/index.html">
 <meta property="og:site_name" content="圣者纯洁">
-<meta property="og:description" content="你好，我是张俊杰，很高兴看到你！">
+<meta property="og:description" content="你好，我是张俊杰，很高兴看到你！ 临时测试 数据库中有三个表如下：用户表：users（user_id, advertisement_id, date, sex）广告展示表：advertisement(advertisement_id, show_start_timestamp, show_end_timestamp)请写出一个sql查询，计算过去7天里，女性用户（female）每天的前10个广告中">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png">
 <meta property="article:published_time" content="2024-10-13T08:05:31.000Z">
-<meta property="article:modified_time" content="2024-10-17T13:35:26.793Z">
+<meta property="article:modified_time" content="2024-10-17T14:39:49.256Z">
 <meta property="article:author" content="张俊杰">
 <meta property="article:tag" content="开始">
 <meta name="twitter:card" content="summary">
@@ -1630,7 +1630,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     debug: "env",
     cdn: {"js":{"app":"/js/app.js","parallax":"/js/plugins/parallax.js","rightMenu":"/js/plugins/rightMenu.js","rightMenus":"/js/plugins/rightMenus.js","sites":"/js/plugins/tags/sites.js","friends":"/js/plugins/tags/friends.js","contributors":"/js/plugins/tags/contributors.js","search":"/js/search/hexo.js"},"css":{"style":"/css/style.css"}},
     default: {"avatar":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/avatar/round/3442075.svg","link":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/link/8f277b4ee0ecd.svg","cover":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/cover/76b86c0226ffd.svg","image":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/image/2659360.svg"},
-    lastupdate: new Date(1729172214912),
+    lastupdate: new Date(1729176022149),
     sidebar: {
       for_page: ["blogger","category","tagcloud","donate"],
       for_post: ["toc"],
@@ -2526,6 +2526,57 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   <div id="layoutHelper-page-plugins"></div>
   <div id="post-body" itemprop="articleBody">
     <p>你好，我是张俊杰，很高兴看到你！</p>
+<p>临时测试</p>
+<p>数据库中有三个表如下：用户表：users（user_id, advertisement_id, date, sex）广告展示表：advertisement(advertisement_id, show_start_timestamp, show_end_timestamp)请写出一个sql查询，计算过去7天里，女性用户（female）每天的前10个广告中，每次广告的平均展示耗时（start到end的时间），以date和展示次序排序。输出格式如下：Date ，Ad_rank，show_duration2024-xx-xx， 1 ，302024-xx-xx， 2，352024-xx-xx， 3，28…… 回答这个问题，并评价这个题目的难度</p>
+<h3 id="SQL-查询"><a href="#SQL-查询" class="headerlink" title="SQL 查询"></a>SQL 查询</h3><p>首先，这个问题要求在过去7天里，按日期和广告展示次序计算女性用户每天前10个广告的平均展示时间。我们需要连接 <code>users</code> 表和 <code>advertisement</code> 表，并计算广告展示的耗时。查询的步骤包括过滤、排序和限制广告数，最后计算展示耗时。</p>
+<p>以下是满足条件的 SQL 查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">WITH</span> recent_advertisements <span class="keyword">AS</span> (</span><br><span class="line">    <span class="comment">-- 获取过去7天的女性用户及其相关广告数据</span></span><br><span class="line">    <span class="keyword">SELECT</span> u.user_id, u.date, a.advertisement_id, </span><br><span class="line">           a.show_start_timestamp, a.show_end_timestamp,</span><br><span class="line">           TIMESTAMPDIFF(<span class="keyword">SECOND</span>, a.show_start_timestamp, a.show_end_timestamp) <span class="keyword">AS</span> show_duration</span><br><span class="line">    <span class="keyword">FROM</span> users u</span><br><span class="line">    <span class="keyword">JOIN</span> advertisement a</span><br><span class="line">      <span class="keyword">ON</span> u.advertisement_id <span class="operator">=</span> a.advertisement_id</span><br><span class="line">    <span class="keyword">WHERE</span> u.sex <span class="operator">=</span> <span class="string">&#x27;female&#x27;</span></span><br><span class="line">      <span class="keyword">AND</span> u.date <span class="operator">&gt;=</span> CURDATE() <span class="operator">-</span> <span class="type">INTERVAL</span> <span class="number">7</span> <span class="keyword">DAY</span></span><br><span class="line">),</span><br><span class="line">ranked_ads <span class="keyword">AS</span> (</span><br><span class="line">    <span class="comment">-- 为每个日期的广告按展示次序排序</span></span><br><span class="line">    <span class="keyword">SELECT</span> <span class="type">date</span>, advertisement_id, show_duration,</span><br><span class="line">           <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="type">date</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> show_duration <span class="keyword">DESC</span>) <span class="keyword">AS</span> ad_rank</span><br><span class="line">    <span class="keyword">FROM</span> recent_advertisements</span><br><span class="line">)</span><br><span class="line"><span class="comment">-- 筛选前10个广告，并按日期和展示次序排序</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="type">date</span>, ad_rank, show_duration</span><br><span class="line"><span class="keyword">FROM</span> ranked_ads</span><br><span class="line"><span class="keyword">WHERE</span> ad_rank <span class="operator">&lt;=</span> <span class="number">10</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="type">date</span>, ad_rank;</span><br></pre></td></tr></table></figure>
+
+<h3 id="查询说明："><a href="#查询说明：" class="headerlink" title="查询说明："></a>查询说明：</h3><ol>
+<li><strong>过滤条件</strong>：先用 <code>users</code> 表和 <code>advertisement</code> 表进行连接，限定性别为女性 (<code>u.sex = &#39;female&#39;</code>)，并且筛选出过去7天的数据 (<code>u.date &gt;= CURDATE() - INTERVAL 7 DAY</code>)。</li>
+<li><strong>计算展示时间</strong>：使用 <code>TIMESTAMPDIFF(SECOND, start, end)</code> 函数计算每次广告展示的持续时间，单位为秒。</li>
+<li><strong>排名</strong>：使用 <code>ROW_NUMBER()</code> 窗口函数，对每个 <code>date</code> 分组的广告展示时长按降序进行排名（<code>ORDER BY show_duration DESC</code>）。</li>
+<li><strong>限制广告数</strong>：使用 <code>WHERE ad_rank &lt;= 10</code> 筛选每天前10个广告。</li>
+<li><strong>排序输出</strong>：最后按照 <code>date</code> 和 <code>ad_rank</code> 排序，得到期望的结果。</li>
+</ol>
+<h3 id="输出格式："><a href="#输出格式：" class="headerlink" title="输出格式："></a>输出格式：</h3><p>输出将会是：</p>
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Ad_rank</th>
+<th>show_duration</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2024-xx-xx</td>
+<td>1</td>
+<td>30</td>
+</tr>
+<tr>
+<td>2024-xx-xx</td>
+<td>2</td>
+<td>35</td>
+</tr>
+<tr>
+<td>2024-xx-xx</td>
+<td>3</td>
+<td>28</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+</tbody></table>
+<h3 id="题目难度评价："><a href="#题目难度评价：" class="headerlink" title="题目难度评价："></a>题目难度评价：</h3><p>这个题目的难度中等偏上，原因如下：</p>
+<ol>
+<li>涉及两个表的连接操作，并需要通过外键 (<code>advertisement_id</code>) 进行关联。</li>
+<li>需要对数据进行多维度的排序与分组，这里使用了窗口函数 <code>ROW_NUMBER()</code> 来处理广告的展示顺序问题。</li>
+<li>时间范围的过滤 (<code>过去7天</code>) 和时间计算 (<code>广告展示时长</code>) 也涉及一些细节处理。</li>
+<li>输出要求较为细致，包括日期排序和前10个广告的限制。</li>
+</ol>
+<p>总体而言，这个问题考察了对 SQL 复杂查询的综合能力，适合有一定经验的 SQL 使用者。</p>
 
   </div>
   
@@ -2550,7 +2601,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateModified" datetime="2024-10-17T21:35:26+08:00">
+          <div class="new-meta-item date" itemprop="dateModified" datetime="2024-10-17T22:39:49+08:00">
   <a class='notlink'>
     <i class="fa-solid fa-edit fa-fw" aria-hidden="true"></i>
     <p>更新于：Oct 17, 2024</p>
@@ -2694,9 +2745,19 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
 
 
-  <div class="">
-    <!-- pjax占位 -->
-  </div>
+  <section class="widget toc-wrapper desktop mobile " id="toc-div" >
+    
+  <header>
+    
+      <i class="fa-solid fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#SQL-%E6%9F%A5%E8%AF%A2"><span class="toc-text">SQL 查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E8%AF%B4%E6%98%8E%EF%BC%9A"><span class="toc-text">查询说明：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BE%93%E5%87%BA%E6%A0%BC%E5%BC%8F%EF%BC%9A"><span class="toc-text">输出格式：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E9%9A%BE%E5%BA%A6%E8%AF%84%E4%BB%B7%EF%BC%9A"><span class="toc-text">题目难度评价：</span></a></li></ol>
+    </div>
+  </section>
 
   
 
@@ -3269,7 +3330,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </script>
 
 
-  <script type="application/ld+json">[{"@context":"http://schema.org","@type":"Organization","name":"圣者纯洁","url":"http://example.com/","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},{"@context":"http://schema.org","@type":"Person","name":"张俊杰","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://example.com/","sameAs":["https://github.com/volantis-x"],"description":"这是张俊杰的网站"},{"@context":"http://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"http://example.com/","name":"圣者纯洁"}},{"@type":"ListItem","position":2,"item":{"@id":"http://example.com/categories/hexo/","name":"hexo"}},{"@type":"ListItem","position":3,"item":{"@id":"http://example.com/2024/10/13/我的第一篇文章/","name":"我的第一篇文章"}}]},{"@context":"http://schema.org","@type":"WebSite","name":"圣者纯洁","url":"http://example.com/","keywords":null,"description":"这是张俊杰的网站","author":{"@type":"Person","name":"张俊杰","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://example.com/","description":"这是张俊杰的网站"},"publisher":{"@type":"Organization","name":"圣者纯洁","url":"http://example.com/","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},"potentialAction":{"@type":"SearchAction","name":"Site Search","target":{"@type":"EntryPoint","urlTemplate":"http://example.com?s={search_term_string}"},"query-input":"required name=search_term_string"}},{"@context":"http://schema.org","@type":"BlogPosting","headline":"我的第一篇文章","description":"这是张俊杰的网站","inLanguage":"en","mainEntityOfPage":{"@type":"WebPage","@id":"http://example.com/2024/10/13/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/"},"author":{"@type":"Person","name":"张俊杰","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://example.com/"},"publisher":{"@type":"Organization","name":"圣者纯洁","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},"url":"http://example.com/2024/10/13/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/","wordCount":0,"datePublished":"2024-10-13T08:05:31.000Z","dateModified":"2024-10-17T13:35:26.793Z","articleSection":"hexo","keywords":"开始","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}}]</script>
+  <script type="application/ld+json">[{"@context":"http://schema.org","@type":"Organization","name":"圣者纯洁","url":"http://example.com/","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},{"@context":"http://schema.org","@type":"Person","name":"张俊杰","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://example.com/","sameAs":["https://github.com/volantis-x"],"description":"这是张俊杰的网站"},{"@context":"http://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"http://example.com/","name":"圣者纯洁"}},{"@type":"ListItem","position":2,"item":{"@id":"http://example.com/categories/hexo/","name":"hexo"}},{"@type":"ListItem","position":3,"item":{"@id":"http://example.com/2024/10/13/我的第一篇文章/","name":"我的第一篇文章"}}]},{"@context":"http://schema.org","@type":"WebSite","name":"圣者纯洁","url":"http://example.com/","keywords":null,"description":"这是张俊杰的网站","author":{"@type":"Person","name":"张俊杰","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://example.com/","description":"这是张俊杰的网站"},"publisher":{"@type":"Organization","name":"圣者纯洁","url":"http://example.com/","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},"potentialAction":{"@type":"SearchAction","name":"Site Search","target":{"@type":"EntryPoint","urlTemplate":"http://example.com?s={search_term_string}"},"query-input":"required name=search_term_string"}},{"@context":"http://schema.org","@type":"BlogPosting","headline":"我的第一篇文章","description":"这是张俊杰的网站","inLanguage":"en","mainEntityOfPage":{"@type":"WebPage","@id":"http://example.com/2024/10/13/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/"},"author":{"@type":"Person","name":"张俊杰","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://example.com/"},"publisher":{"@type":"Organization","name":"圣者纯洁","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},"url":"http://example.com/2024/10/13/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/","wordCount":0,"datePublished":"2024-10-13T08:05:31.000Z","dateModified":"2024-10-17T14:39:49.256Z","articleSection":"hexo","keywords":"开始","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}}]</script>
 
 
 
